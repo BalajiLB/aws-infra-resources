@@ -19,4 +19,5 @@ variable "instance_type" {
 }
 variable "bucket_name" {
 }
-
+variable "key_name" {
+}

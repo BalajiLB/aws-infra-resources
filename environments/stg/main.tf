@@ -1,9 +1,9 @@
 module "vpc" {
   source = "git::https://github.com/BalajiLB/Terraform-Modules.git//aws/vpc?ref=v1.0.0-vpc"
 
-  name = var.name
-  cidr = var.cidr
-  azs  = var.azs
+  name           = var.name
+  cidr           = var.cidr
+  azs            = var.azs
   public_subnets = var.public_subnets
 
 }
@@ -15,13 +15,26 @@ module "sg" {
   vpc_id = module.vpc.vpc_id
 
   ingress_with_cidr_blocks = [
-    for cidr in var.public_subnets : {
-      from_port   = "80"
-      to_port     = "80"
+    {
+      from_port   = 80
+      to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = var.cidr
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
     }
   ]
+
   egress_with_cidr_blocks = [
     {
       from_port   = 0
@@ -35,6 +48,7 @@ module "sg" {
 module "ec2" {
   source        = "git::https://github.com/BalajiLB/Terraform-Modules.git//aws/ec2?ref=v1.0.0-ec2"
   count         = length(var.instance_names)
+  key_name      = var.key_name
   create        = true
   name          = var.instance_names[count.index]
   ami           = var.ami_id
@@ -44,7 +58,11 @@ module "ec2" {
   availability_zone           = var.azs[count.index]
   associate_public_ip_address = true
   vpc_security_group_ids      = [module.sg.security_group_id]
-  user_data                   = file("scripts/install.sh")
+
+  create_security_group = false
+
+  user_data = file("../scripts/install.sh")
+
 }
 
 module "s3" {
