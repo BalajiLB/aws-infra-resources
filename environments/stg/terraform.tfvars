@@ -1,0 +1,10 @@
+name                = "dev-vpc"
+cidr                = "10.1.0.0/16"
+public_subnets      = ["10.1.1.0/24", "10.1.2.0/24"]
+azs                 = ["us-west-2a", "us-west-2b"]
+region              = "us-west-2"
+instance_names      = ["stg-web-app1", "stg-web-app2"]
+ami_id              = "ami-03b322c510c7cf8e3"
+instance_type       = "t2.micro"
+bucket_name         = "stage-s3-loga-bucket"
+
