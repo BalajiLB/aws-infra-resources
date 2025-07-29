@@ -1,10 +1,19 @@
-name: Checkov Scan
-
+name: Deploy Workflow
 on:
   push:
-    branches: [ "main", "feature/*, "bugfix/*" ]
+    branches:
+      - main
+      - dev
+      - stg
+      - prd
+      - feature/*
+      - bugfix/*
   pull_request:
-    branches: [ "main", "feature/*, "bugfix/*" ]
+    branches:
+      - main
+      - dev
+      - stg
+      - prd
   workflow_dispatch:
 
 jobs:
@@ -25,10 +34,10 @@ jobs:
         with:
           output_format: cli,sarif
           output_file_path: console,results.sarif
-          soft_fail: true  # ✅ ensures pipeline does not fail on policy violations
+          soft_fail: true  # Soft fail: does not block PR
 
       - name: Upload SARIF file to GitHub Security tab
-        if: success() || failure() # ✅ required when previous step might "fail"
+        if: success() || failure()
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
