@@ -27,4 +27,3 @@ jobs:
 
       - name: Terraform Destroy (Manual Approval)
         run: terraform apply -auto-approve tfplan_destroy
-s
