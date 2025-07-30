@@ -1,0 +1,22 @@
+name: Manual Terraform Destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy (dev, stg, prod)"
+        required: true
+        type: choice
+        options:
+          - dev
+          - stg
+          - prod
+
+jobs:
+  destroy:
+    uses: ./.github/workflows/terraform-deploy.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit
+
+    
