@@ -11,9 +11,11 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+
 permissions:
-contents: read
-security-events: write
+  contents: read
+  security-events: write
+
 
 jobs:
   terraform:
