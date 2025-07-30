@@ -1,3 +1,6 @@
+provider "aws" {
+  region = "var.aws_region"
+}
 module "vpc" {
   source = "git::https://github.com/BalajiLB/Terraform-Modules.git//aws/vpc?ref=v1.0.0-vpc"
 
