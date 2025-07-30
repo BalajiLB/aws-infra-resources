@@ -26,6 +26,20 @@ jobs:
         with:
           terraform_version: 1.8.5
 
+      - name: Run Checkov Security Scan
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: environments/${{ inputs.environment }}
+          config-file: .checkov.yml
+          output_format: sarif
+          output_file_path: checkov-results/checkov-results.sarif
+          soft_fail: true
+
+      - name: Upload Checkov SARIF results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: checkov-results/checkov-results.sarif
+
       - name: Terraform Init
         run: terraform init
         working-directory: ./environments/${{ inputs.environment }}
