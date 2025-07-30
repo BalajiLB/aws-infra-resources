@@ -17,12 +17,14 @@ jobs:
 
   deploy-stg:
     name: Deploy to Staging
+    needs: deploy-dev           # waiting Dev to finish
     uses: ./.github/workflows/terraform-deploy.yml
     with:
       environment: stg
 
   deploy-prod:
     name: Deploy to Prod
+    needs: deploy-stg           # waiting stg to finish
     uses: ./.github/workflows/terraform-deploy.yml
     with:
       environment: prod

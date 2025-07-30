@@ -1,7 +1,16 @@
+name: Terraform Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}  # 👈 ensures environment-specific secrets are available
+    environment: ${{ inputs.environment }}
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
