@@ -1,43 +1,50 @@
-name: Deploy Workflow
+name: Terraform Deploy with Checkov
+
 on:
   push:
     branches:
-      - main
       - dev
       - stg
-      - prd
-      - feature/*
-      - bugfix/*
+      - prod
   pull_request:
     branches:
-      - main
       - dev
       - stg
-      - prd
+      - prod
   workflow_dispatch:
 
 jobs:
-  scan:
-    name: Checkov Scan Job
+  terraform:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
+    env:
+      TF_VAR_environment: ${{ github.ref_name }}
+
+    defaults:
+      run:
+        working-directory: terraform/${{ github.ref_name }}
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run Checkov with SARIF output (soft fail)
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Run Checkov
         uses: bridgecrewio/checkov-action@v12
         with:
-          output_format: cli,sarif
-          output_file_path: console,results.sarif
-          soft_fail: true  # Soft fail: does not block PR
+          directory: terraform/${{ github.ref_name }}
+          output_format: cli
+          soft_fail: false
 
-      - name: Upload SARIF file to GitHub Security tab
-        if: success() || failure()
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan.binary
+
+      - name: Terraform Apply
+        if: github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan.binary
