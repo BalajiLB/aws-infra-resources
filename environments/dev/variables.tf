@@ -9,6 +9,7 @@ variable "azs" {
   type = list(string)
 }
 variable "region" {
+  type = string
 }
 variable "instance_names" {
   type = list(string)
