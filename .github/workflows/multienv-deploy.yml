@@ -10,16 +10,19 @@ on:
 
 jobs:
   deploy-dev:
+    name: Deploy to Dev
     uses: ./.github/workflows/terraform-deploy.yml
     with:
       environment: dev
 
   deploy-stg:
+    name: Deploy to Staging
     uses: ./.github/workflows/terraform-deploy.yml
     with:
       environment: stg
 
   deploy-prod:
+    name: Deploy to Prod
     uses: ./.github/workflows/terraform-deploy.yml
     with:
       environment: prod
