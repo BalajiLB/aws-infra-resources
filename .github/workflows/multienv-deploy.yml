@@ -1,0 +1,25 @@
+name: multi env deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy-dev:
+    uses: ./.github/workflows/terraform-deploy.yml
+    with:
+      environment: dev
+
+  deploy-stg:
+    uses: ./.github/workflows/terraform-deploy.yml
+    with:
+      environment: stg
+
+  deploy-prod:
+    uses: ./.github/workflows/terraform-deploy.yml
+    with:
+      environment: prod

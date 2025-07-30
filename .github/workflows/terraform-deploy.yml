@@ -1,4 +1,4 @@
-name: Terraform Destroy
+name: Terraform Deploy
 
 on:
   workflow_call:
@@ -22,6 +22,10 @@ jobs:
         run: terraform init
         working-directory: ./environments/${{ inputs.environment }}
 
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ./environments/${{ inputs.environment }}
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
         working-directory: ./environments/${{ inputs.environment }}
