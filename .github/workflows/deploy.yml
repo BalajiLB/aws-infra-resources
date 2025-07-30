@@ -1,24 +1,19 @@
 name: Deploy Workflow
+
 on:
   push:
     branches:
       - main
-      - dev
-      - stg
-      - prd
       - feature/*
       - bugfix/*
   pull_request:
     branches:
       - main
-      - dev
-      - stg
-      - prd
   workflow_dispatch:
 
 jobs:
-  scan:
-    name: Checkov Scan Job
+  infra-deploy:
+    name: Infrastructure Deploy
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,10 +29,26 @@ jobs:
         with:
           output_format: cli,sarif
           output_file_path: console,results.sarif
-          soft_fail: true  # Soft fail: does not block PR
+          soft_fail: true
 
       - name: Upload SARIF file to GitHub Security tab
-        if: success() || failure()
+        if: always()
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply (only on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
