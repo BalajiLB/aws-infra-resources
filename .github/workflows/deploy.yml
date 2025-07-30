@@ -1,43 +1,54 @@
-name: Deploy Workflow
+name: Terraform Deploy
+
 on:
-  push:
-    branches:
-      - main
-      - dev
-      - stg
-      - prd
-      - feature/*
-      - bugfix/*
-  pull_request:
-    branches:
-      - main
-      - dev
-      - stg
-      - prd
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Choose the environment to deploy"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - stg
+          - prod
+      action:
+        description: "Terraform action to perform"
+        required: true
+        default: plan
+        type: choice
+        options:
+          - plan
+          - apply
 
 jobs:
-  scan:
-    name: Checkov Scan Job
+  terraform:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
+    environment: ${{ github.event.inputs.environment }}
+
+    defaults:
+      run:
+        working-directory: environments/${{ github.event.inputs.environment }}
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Run Checkov with SARIF output (soft fail)
-        uses: bridgecrewio/checkov-action@v12
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
         with:
-          output_format: cli,sarif
-          output_file_path: console,results.sarif
-          soft_fail: true  # Soft fail: does not block PR
+          terraform_version: 1.6.6
 
-      - name: Upload SARIF file to GitHub Security tab
-        if: success() || failure()
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: ${{ github.event.inputs.action == 'plan' }}
+        run: terraform plan
+
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.action == 'apply' }}
+        run: terraform apply -auto-approve
