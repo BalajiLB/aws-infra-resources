@@ -1,43 +1,28 @@
-name: Deploy Workflow
+name: Deploy All Environments
+
 on:
   push:
     branches:
       - main
-      - dev
-      - stg
-      - prd
-      - feature/*
-      - bugfix/*
   pull_request:
     branches:
       - main
-      - dev
-      - stg
-      - prd
-  workflow_dispatch:
 
 jobs:
-  scan:
-    name: Checkov Scan Job
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
+  deploy-dev:
+    uses: ./.github/workflows/terraform-deploy.yml
+    with:
+      environment: dev
+      tf_workspace: dev
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+  deploy-stg:
+    uses: ./.github/workflows/terraform-deploy.yml
+    with:
+      environment: stg
+      tf_workspace: stg
 
-      - name: Run Checkov with SARIF output (soft fail)
-        uses: bridgecrewio/checkov-action@v12
-        with:
-          output_format: cli,sarif
-          output_file_path: console,results.sarif
-          soft_fail: true  # Soft fail: does not block PR
-
-      - name: Upload SARIF file to GitHub Security tab
-        if: success() || failure()
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
+  deploy-prod:
+    uses: ./.github/workflows/terraform-deploy.yml
+    with:
+      environment: prod
+      tf_workspace: prod
