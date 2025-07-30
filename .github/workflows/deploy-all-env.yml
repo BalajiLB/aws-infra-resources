@@ -1,0 +1,24 @@
+name: Deploy All Environments
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  deploy:
+    name: Deploy ${{ matrix.environment }}
+    uses: ./.github/workflows/terraform-deploy.yml
+    strategy:
+      matrix:
+        include:
+          - environment: dev
+            tf_workspace: dev
+          - environment: stg
+            tf_workspace: stg
+          - environment: prod
+            tf_workspace: prod
+    with:
+      environment: ${{ matrix.environment }}
+      tf_workspace: ${{ matrix.tf_workspace }}
