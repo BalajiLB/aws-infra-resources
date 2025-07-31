@@ -60,7 +60,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           
       - name: Run Dynatrace Install Script
-        run: ./scripts/install.sh
+        run:  ./environments/scripts/install.sh
         env:
           DYNATRACE_API_TOKEN: ${{ secrets.DYNATRACE_API_TOKEN }}
 
